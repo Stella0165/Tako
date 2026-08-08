@@ -44,3 +44,31 @@ async def trigger(
         return result
     except Exception as e:
         raise HTTPException(status_code=502, detail=f"Orchestrator call failed: {str(e)}")
+
+@router.get("/stats")
+def get_dashboard_stats(
+    user: dict = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    from sqlalchemy import func
+    from ..models import OrchestratorRun
+
+    total_runs = db.query(func.count(OrchestratorRun.id)).scalar() or 0
+    completed_runs = db.query(func.count(OrchestratorRun.id)).filter(OrchestratorRun.status == "completed").scalar() or 0
+    failed_runs = db.query(func.count(OrchestratorRun.id)).filter(OrchestratorRun.status == "failed").scalar() or 0
+    running_runs = db.query(func.count(OrchestratorRun.id)).filter(OrchestratorRun.status == "running").scalar() or 0
+    success_rate = round((completed_runs / total_runs) * 100) if total_runs > 0 else 0
+
+    recent_runs = db.query(OrchestratorRun).order_by(OrchestratorRun.created_at.desc()).limit(10).all()
+
+    return {
+        "total_runs": total_runs,
+        "completed_runs": completed_runs,
+        "failed_runs": failed_runs,
+        "running_runs": running_runs,
+        "success_rate": success_rate,
+        "recent_runs": [
+            {"id": r.id, "status": r.status, "created_at": r.created_at.isoformat() if r.created_at else None, "completed_at": r.completed_at.isoformat() if r.completed_at else None}
+            for r in recent_runs
+        ],
+    }
