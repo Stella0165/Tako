@@ -42,6 +42,7 @@ from .routers import (
     examples_router,
     health_router,
     items_router,
+    orchestrator_router,
 )
 from .security import get_current_user, verify_access
 
@@ -153,6 +154,8 @@ api_router.include_router(items_router)
 
 # Authorization pattern examples
 api_router.include_router(examples_router)
+
+api_router.include_router(orchestrator_router)
 
 
 # =============================================================================
