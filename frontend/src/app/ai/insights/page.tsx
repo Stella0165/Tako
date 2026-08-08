@@ -12,20 +12,16 @@ import { InsightCard, type Insight } from '@/components/ai/insights/InsightCard'
 import { PatternCluster, type Pattern } from '@/components/ai/insights/PatternCluster'
 import { ActionCard, type ActionItem } from '@/components/ai/insights/ActionCard'
 
-// ============================================================================
-// Demo Data — Replace with your own API integration
-// ============================================================================
-
 const DEMO_INSIGHTS: Insight[] = [
   {
     id: 'demo-insight-001',
     type: 'pattern',
     severity: 'info',
-    title: 'Peak Usage Pattern Detected',
-    description: 'Most user activity occurs between 9 AM and 11 AM on weekdays. Tuesday shows 23% higher engagement than other days.',
-    data: { peak_hours: '9:00 - 11:00', peak_day: 'Tuesday', avg_daily_sessions: 156, tuesday_increase: '23%' },
-    suggested_action: 'Schedule system maintenance outside peak hours (before 8 AM or after 6 PM)',
-    action_type: 'schedule_maintenance',
+    title: 'Deal Velocity Pattern Detected',
+    description: 'Opportunities with 3+ stakeholder touchpoints in the first 2 weeks close 40% faster than average. Multi-threading early correlates strongly with shorter sales cycles.',
+    data: { avg_days_to_close: 21, baseline_days: 35, sample_size: 128 },
+    suggested_action: 'Share multi-threading playbook with reps',
+    action_type: 'share_playbook',
     confidence: 0.92,
     created_at: new Date(Date.now() - 2 * 3600000).toISOString(),
     is_demo: true,
@@ -34,11 +30,11 @@ const DEMO_INSIGHTS: Insight[] = [
     id: 'demo-insight-002',
     type: 'anomaly',
     severity: 'warning',
-    title: 'Unusual API Activity Spike',
-    description: 'API requests spiked 340% at 3:15 AM, significantly outside normal usage patterns. Source traced to 3 IP addresses.',
-    data: { spike_time: '03:15 AM', normal_avg_requests: 45, spike_requests: 198, increase_percent: '340%', source_ips: 3 },
-    suggested_action: 'Review API access logs and verify source IP addresses',
-    action_type: 'investigate',
+    title: 'Pipeline Stall Risk',
+    description: '$340K across 9 deals have had no logged activity in 14+ days and are past their expected close date. These are at high risk of slipping to next quarter.',
+    data: { at_risk_value: '$340,000', deal_count: 9, avg_days_stalled: 17 },
+    suggested_action: 'Notify reps to re-engage stalled deals',
+    action_type: 'reengage_pipeline',
     confidence: 0.95,
     created_at: new Date(Date.now() - 6 * 3600000).toISOString(),
     is_demo: true,
@@ -47,11 +43,11 @@ const DEMO_INSIGHTS: Insight[] = [
     id: 'demo-insight-003',
     type: 'recommendation',
     severity: 'info',
-    title: 'Policy Optimization Opportunity',
-    description: '23 transactions were manually reviewed that match the Auto-Approve Low Value policy criteria. Creating a supporting policy could save ~3.5 hours per week.',
-    data: { manual_reviews: 23, matching_criteria: 'amount < $50, status = pending', potential_savings_hours: 3.5 },
-    suggested_action: 'Create a complementary policy for amounts under $50',
-    action_type: 'create_policy',
+    title: 'Upsell Opportunity Identified',
+    description: '12 accounts are using 90%+ of their current plan limits. These are strong candidates for expansion outreach this quarter.',
+    data: { accounts: 12, avg_usage: '93%', potential_arr_lift: '$180,000' },
+    suggested_action: 'Create expansion outreach list',
+    action_type: 'create_campaign',
     confidence: 0.88,
     created_at: new Date(Date.now() - 12 * 3600000).toISOString(),
     is_demo: true,
@@ -60,28 +56,42 @@ const DEMO_INSIGHTS: Insight[] = [
     id: 'demo-insight-004',
     type: 'anomaly',
     severity: 'warning',
-    title: 'Duplicate Transaction Detected',
-    description: 'Two transactions with identical amounts, timestamps, and vendor details submitted within 2 seconds. Potential duplicate entry.',
-    data: { transaction_1_id: 'TXN-2024-001234', transaction_2_id: 'TXN-2024-001235', amount: 4750.0, vendor: 'TechSupply Inc', time_difference_seconds: 1.8 },
-    suggested_action: 'Review and potentially void duplicate transaction',
+    title: 'Duplicate Opportunity Detected',
+    description: 'Two reps have open opportunities logged against the same account within 3 minutes of each other. Likely a duplicate entry or territory conflict.',
+    data: { opportunity_1_id: 'OPP-2026-04521', opportunity_2_id: 'OPP-2026-04522', account: 'Meridian Logistics' },
+    suggested_action: 'Flag for territory and dedupe review',
     action_type: 'review_duplicate',
     confidence: 0.97,
     created_at: new Date(Date.now() - 30 * 60000).toISOString(),
     is_demo: true,
   },
+  {
+    id: 'demo-insight-005',
+    type: 'alert',
+    severity: 'critical',
+    title: 'Quarter-End Revenue Gap',
+    description: 'Current quarter pipeline is tracking $420K below target with 12 days remaining. Closing 3 of the top 5 open deals would close the gap.',
+    data: { gap_to_target: '$420,000', days_remaining: 12, top_deals_needed: 3 },
+    suggested_action: 'Escalate top 5 deals to leadership',
+    action_type: 'escalate_deals',
+    confidence: 0.94,
+    created_at: new Date(Date.now() - 45 * 60000).toISOString(),
+    is_demo: true,
+  },
 ]
 
 const DEMO_PATTERNS: Pattern[] = [
-  { name: 'Peak Business Hours', frequency: 'daily', confidence: 0.92, sample_size: 2500, description: 'Activity peaks between 9-11 AM and 2-4 PM on weekdays', is_demo: true },
-  { name: 'Weekend Activity Drop', frequency: 'weekly', confidence: 0.96, sample_size: 8400, description: 'Weekend activity drops to 12% of weekday average', is_demo: true },
-  { name: 'Month-End Surge', frequency: 'monthly', confidence: 0.89, sample_size: 15000, description: 'Last 3 days of month show 45% higher transaction volume', is_demo: true },
-  { name: 'Vendor Preference Clustering', frequency: 'ongoing', confidence: 0.78, sample_size: 1200, description: 'Top 5 vendors account for 67% of all transactions', is_demo: true },
+  { name: 'Multi-Threaded Deals Close Faster', frequency: 'weekly', confidence: 0.92, sample_size: 128, description: '3+ stakeholders engaged in first 2 weeks correlates with a 40% faster close', is_demo: true },
+  { name: 'Early Demo Scheduling Drives Wins', frequency: 'monthly', confidence: 0.90, sample_size: 210, description: 'Demo booked within 5 days of first contact wins at 2.1x the rate', is_demo: true },
+  { name: 'Usage-Based Expansion Signal', frequency: 'monthly', confidence: 0.88, sample_size: 64, description: 'Accounts at 90%+ plan usage convert to upsell 3x more often', is_demo: true },
+  { name: 'Friday Deal Slippage', frequency: 'weekly', confidence: 0.81, sample_size: 95, description: 'Deals forecast to close on Fridays slip to the next week 35% of the time', is_demo: true },
 ]
 
 const DEMO_ACTIONS: ActionItem[] = [
-  { title: 'Create policy for sub-$50 auto-approval', priority: 'high', estimated_impact: 'Save 3.5 hours/week', action_type: 'create_policy', action_config: { template: 'auto_approve', threshold: 50 }, is_demo: true },
-  { title: 'Investigate 3 AM API spike', priority: 'high', estimated_impact: 'Security improvement', action_type: 'investigate', action_config: { log_type: 'api_access', time_range: '02:00-04:00' }, is_demo: true },
-  { title: 'Review duplicate transaction pair', priority: 'critical', estimated_impact: 'Prevent $4,750 overpayment', action_type: 'review_transaction', action_config: { transaction_ids: ['TXN-2024-001234', 'TXN-2024-001235'] }, is_demo: true },
+  { title: 'Re-engage 9 stalled deals worth $340K', priority: 'critical', estimated_impact: 'Protects $340,000 in at-risk pipeline', action_type: 'reengage_pipeline', action_config: { min_days_stalled: 14 }, is_demo: true },
+  { title: 'Launch expansion campaign for 12 high-usage accounts', priority: 'high', estimated_impact: 'Potential $180,000 ARR lift', action_type: 'create_campaign', action_config: { segment: 'high_usage' }, is_demo: true },
+  { title: 'Resolve duplicate opportunity for Meridian Logistics', priority: 'medium', estimated_impact: 'Prevents rep conflict and reporting error', action_type: 'review_duplicate', action_config: { opportunity_ids: ['OPP-2026-04521', 'OPP-2026-04522'] }, is_demo: true },
+  { title: 'Escalate top 5 open deals to close quarter gap', priority: 'critical', estimated_impact: 'Closes $420,000 gap to quarter target', action_type: 'escalate_deals', action_config: { count: 5 }, is_demo: true },
 ]
 
 interface _InsightsResponse {
@@ -152,14 +162,20 @@ export default function AIInsightsPage() {
   }
 
   const handleInsightAction = useCallback(async (insight: Insight) => {
-    // Route based on action_type
+    // Route based on action_type — adjust these paths to match your app's routes
     switch (insight.action_type) {
-      case 'create_policy':
-        router.push('/ai/policies?tab=create-with-ai')
+      case 'reengage_pipeline':
+      case 'escalate_deals':
+        router.push('/pipeline')
         break
-      case 'investigate':
+      case 'create_campaign':
+        router.push('/accounts?filter=high-usage')
+        break
       case 'review_duplicate':
-        router.push('/workbench')
+        router.push('/deals')
+        break
+      case 'share_playbook':
+        router.push('/playbooks')
         break
       default:
         break
@@ -172,14 +188,17 @@ export default function AIInsightsPage() {
   }, [])
 
   const handleApplyAction = useCallback(async (action: ActionItem) => {
-    // Route based on action type
+    // Route based on action type — adjust these paths to match your app's routes
     switch (action.action_type) {
-      case 'create_policy':
-        router.push('/ai/policies?tab=create-with-ai')
+      case 'reengage_pipeline':
+      case 'escalate_deals':
+        router.push('/pipeline')
         break
-      case 'investigate':
-      case 'review_transaction':
-        router.push('/workbench')
+      case 'create_campaign':
+        router.push('/accounts?filter=high-usage')
+        break
+      case 'review_duplicate':
+        router.push('/deals')
         break
       default:
         break
@@ -202,10 +221,10 @@ export default function AIInsightsPage() {
       <motion.div variants={itemVariants} className="flex items-center justify-between">
         <div>
           <h1 className="text-display-3 font-bold tracking-tight text-brand-navy lg:text-display-2">
-            AI Insights
+            Sales Intelligence
           </h1>
           <p className="mt-2 text-lg text-muted-foreground">
-            AI-powered analysis of your data. Discover patterns, anomalies, and optimization opportunities.
+            AI-powered analysis of your pipeline and revenue. Discover deal risk, patterns, and growth opportunities.
           </p>
         </div>
         <Button
@@ -237,8 +256,8 @@ export default function AIInsightsPage() {
           <div className="flex-1">
             <p className="font-medium text-amber-900">Demo Insights</p>
             <p className="text-sm text-amber-700 mt-1">
-              Items marked with [DEMO] are sample data for demonstration purposes. 
-              Connect your AI backend to enable real-time analysis of your data.
+              Items marked with [DEMO] are sample data for demonstration purposes.
+              Connect your CRM or revenue data source to enable real-time analysis.
             </p>
           </div>
         </div>
@@ -348,7 +367,7 @@ export default function AIInsightsPage() {
                   <CardHeader className="relative z-10">
                     <CardTitle>All Insights</CardTitle>
                     <CardDescription>
-                      {insights.length} insights generated from your data analysis.
+                      {insights.length} insights generated from your pipeline and revenue data.
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="relative z-10 space-y-4">
@@ -364,7 +383,7 @@ export default function AIInsightsPage() {
                           No insights yet
                         </h3>
                         <p className="mt-1 max-w-sm text-sm text-muted-foreground">
-                          Run an analysis to discover patterns, anomalies, and recommendations.
+                          Run an analysis to discover pipeline risk, patterns, and revenue opportunities.
                         </p>
                         <Button
                           variant="gradient"
@@ -396,7 +415,7 @@ export default function AIInsightsPage() {
                   <CardHeader className="relative z-10">
                     <CardTitle>Detected Patterns</CardTitle>
                     <CardDescription>
-                      Recurring behaviors and trends identified in your data.
+                      Recurring behaviors and trends identified in your sales data.
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="relative z-10">
@@ -411,7 +430,7 @@ export default function AIInsightsPage() {
                   <CardHeader className="relative z-10">
                     <CardTitle>Recommended Actions</CardTitle>
                     <CardDescription>
-                      AI-suggested improvements based on your insights.
+                      AI-suggested moves to protect and grow revenue.
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="relative z-10 space-y-3">
@@ -446,4 +465,3 @@ export default function AIInsightsPage() {
     </motion.div>
   )
 }
-
